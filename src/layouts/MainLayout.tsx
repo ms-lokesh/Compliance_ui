@@ -1,17 +1,17 @@
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
-import { 
-  LayoutDashboard, 
-  FileText, 
-  CheckSquare, 
-  Plug, 
-  Database, 
-  AlertTriangle, 
-  BarChart, 
-  Building, 
-  Users, 
-  Settings 
+import {
+  LayoutDashboard,
+  FileText,
+  CheckSquare,
+  Plug,
+  Database,
+  AlertTriangle,
+  BarChart,
+  Building,
+  Users,
+  Settings
 } from 'lucide-react';
 
 const MainLayout = () => {
@@ -68,19 +68,18 @@ const MainLayout = () => {
             Compliance Management
           </div>
         </div>
-        
+
         {/* Navigation */}
         <div className="flex-1 px-3 py-4 flex flex-col gap-1 overflow-y-auto">
           <p className="px-3 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Platform</p>
           {navItems.map((item, idx) => (
-            <button 
+            <button
               key={idx}
               onClick={() => handleNavigate(item.path)}
-              className={`flex items-center gap-3 px-3 py-2 rounded-md text-[13px] font-medium transition-colors ${
-                activePage === item.label 
-                  ? 'bg-blue-600 text-white' 
+              className={`flex items-center gap-3 px-3 py-2 rounded-md text-[13px] font-medium transition-colors ${activePage === item.label
+                  ? 'bg-blue-600 text-white'
                   : 'text-slate-300 hover:bg-white/10 hover:text-white'
-              }`}
+                }`}
             >
               <item.icon className={`w-4 h-4 ${activePage === item.label ? 'text-white' : 'text-slate-400'}`} />
               {item.label}
@@ -91,14 +90,13 @@ const MainLayout = () => {
             <p className="px-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Administration</p>
           </div>
           {orgItems.map((item, idx) => (
-            <button 
+            <button
               key={idx}
               onClick={() => handleNavigate(item.path)}
-              className={`flex items-center gap-3 px-3 py-2 rounded-md text-[13px] font-medium transition-colors ${
-                activePage === item.label 
-                  ? 'bg-blue-600 text-white' 
+              className={`flex items-center gap-3 px-3 py-2 rounded-md text-[13px] font-medium transition-colors ${activePage === item.label
+                  ? 'bg-blue-600 text-white'
                   : 'text-slate-300 hover:bg-white/10 hover:text-white'
-              }`}
+                }`}
             >
               <item.icon className={`w-4 h-4 ${activePage === item.label ? 'text-white' : 'text-slate-400'}`} />
               {item.label}
@@ -106,10 +104,10 @@ const MainLayout = () => {
           ))}
         </div>
       </aside>
-      
+
       <div className="flex-1 flex flex-col h-full overflow-hidden">
         <Header />
-        
+
         <main className="flex-1 overflow-y-auto px-8 py-6">
           <Outlet />
         </main>

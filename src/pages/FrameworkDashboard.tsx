@@ -55,7 +55,7 @@ const FrameworkDashboard = () => {
               <p className="text-2xl font-bold text-slate-800">92%</p>
             </div>
           </div>
-          <div className="w-full bg-slate-100 rounded-full h-2">
+          <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
             <div className="bg-blue-500 h-2 rounded-full" style={{ width: '92%' }} />
           </div>
         </div>
