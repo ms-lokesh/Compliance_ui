@@ -1,6 +1,7 @@
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
+import { ChatWidget } from '../components/ChatWidget';
 import {
   LayoutDashboard,
   FileText,
@@ -112,6 +113,8 @@ const MainLayout = () => {
           <Outlet />
         </main>
       </div>
+
+      <ChatWidget />
     </div>
   );
 };

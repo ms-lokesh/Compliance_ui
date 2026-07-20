@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, CheckCircle, XCircle, ShieldCheck, AlertTriangle, PlayCircle } from 'lucide-react';
 
@@ -14,16 +15,40 @@ const categories = [
 const FrameworkDashboard = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [stats, setStats] = useState({
+    score: 92,
+    passed: 145,
+    failed: 8,
+    loading: true
+  });
+
+  useEffect(() => {
+    // In a real app we'd map framework ID to an assessment_id. Using 1 as a mock.
+    fetch('http://localhost:8000/api/dashboard/1')
+      .then(res => res.json())
+      .then(data => {
+        if(data && data.overall_score !== undefined) {
+          setStats({
+            score: Math.round(data.overall_score),
+            passed: data.passed_controls,
+            failed: data.failed_controls,
+            loading: false
+          });
+        }
+      })
+      .catch(err => {
+        console.error("Failed to fetch dashboard stats", err);
+        setStats(s => ({...s, loading: false}));
+      });
+  }, []);
 
   // In a real app, fetch framework details based on ID
   const frameworkName = id === 'soc2' ? 'SOC 2 Type II' : id?.toUpperCase();
 
   const handleCategoryClick = (categoryId: string) => {
-    // If it's CC6, go to the detailed control dashboard
     if (categoryId === 'cc6') {
       navigate(`/frameworks/${id}/controls/${categoryId}`);
     } else {
-      // For demo purposes, route to the same detailed page or show a toast
       navigate(`/frameworks/${id}/controls/${categoryId}`);
     }
   };
@@ -52,11 +77,11 @@ const FrameworkDashboard = () => {
             </div>
             <div>
               <p className="text-sm font-medium text-slate-500">Overall Score</p>
-              <p className="text-2xl font-bold text-slate-800">92%</p>
+              <p className="text-2xl font-bold text-slate-800">{stats.loading ? '...' : `${stats.score}%`}</p>
             </div>
           </div>
           <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
-            <div className="bg-blue-500 h-2 rounded-full" style={{ width: '92%' }} />
+            <div className="bg-blue-500 h-2 rounded-full transition-all duration-1000" style={{ width: `${stats.score}%` }} />
           </div>
         </div>
 
@@ -74,12 +99,12 @@ const FrameworkDashboard = () => {
         <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex gap-4 justify-around items-center">
           <div className="text-center">
             <p className="text-sm font-medium text-slate-500 mb-1">Passed</p>
-            <p className="text-2xl font-bold text-emerald-600">145</p>
+            <p className="text-2xl font-bold text-emerald-600">{stats.loading ? '...' : stats.passed}</p>
           </div>
           <div className="w-px h-12 bg-slate-200"></div>
           <div className="text-center">
             <p className="text-sm font-medium text-slate-500 mb-1">Failed</p>
-            <p className="text-2xl font-bold text-red-600">8</p>
+            <p className="text-2xl font-bold text-red-600">{stats.loading ? '...' : stats.failed}</p>
           </div>
         </div>
       </div>
