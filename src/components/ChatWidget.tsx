@@ -33,6 +33,11 @@ export const ChatWidget: React.FC = () => {
 
   const handleNewChat = (prompt?: string) => {
     startNewSession();
+    if (prompt) {
+      useOnboardingStore.getState().setIsOnboardingComplete(true);
+    } else {
+      useOnboardingStore.getState().reset();
+    }
     setCurrentView("chat");
     if (prompt) {
       handleSendMessage(prompt);
@@ -42,6 +47,7 @@ export const ChatWidget: React.FC = () => {
   const handleBackToHome = () => {
     setCurrentView("home");
     startNewSession(); // Reset so if they click New Chat again it's fresh
+    useOnboardingStore.getState().reset();
   };
 
   const handleSendMessage = async (text: string) => {
@@ -54,67 +60,7 @@ export const ChatWidget: React.FC = () => {
     
     addMessage(userMsg);
 
-    // --- Onboarding Interceptor ---
-    if (!isOnboardingComplete) {
-      setTimeout(() => {
-        if (onboardingStep === 1) {
-          useOnboardingStore.getState().setRole({ user_role: text });
-          useOnboardingStore.getState().setOnboardingStep(2);
-          addMessage({
-            id: crypto.randomUUID(), role: 'system', content: 'Great! Next, tell us about your organization.',
-            formType: 'organization', timestamp: Date.now()
-          });
-        } else if (onboardingStep === 2) {
-          try {
-            const data = JSON.parse(text);
-            useOnboardingStore.getState().setOrganization(data);
-            useOnboardingStore.getState().setOnboardingStep(3);
-            addMessage({
-              id: crypto.randomUUID(), role: 'system', content: 'Awesome. Now, what AI product are you building?',
-              formType: 'aiProduct', timestamp: Date.now()
-            });
-          } catch (e) { /* ignore */ }
-        } else if (onboardingStep === 3) {
-          try {
-            const data = JSON.parse(text);
-            useOnboardingStore.getState().setAiProduct(data);
-            useOnboardingStore.getState().setOnboardingStep(4);
-            addMessage({
-              id: crypto.randomUUID(), role: 'system', content: 'Where will this be deployed?',
-              formType: 'deployment', timestamp: Date.now()
-            });
-          } catch (e) { /* ignore */ }
-        } else if (onboardingStep === 4) {
-          try {
-            const data = JSON.parse(text);
-            useOnboardingStore.getState().setDeployment(data);
-            useOnboardingStore.getState().setOnboardingStep(5);
-            addMessage({
-              id: crypto.randomUUID(), role: 'system', content: 'Finally, what is your primary goal?',
-              options: [
-                { id: 'Build a New Compliant AI Product', label: 'Build New AI Product' },
-                { id: 'Prepare for SOC 2 Audit', label: 'SOC 2 Readiness' },
-                { id: 'Review Security Controls', label: 'Security Review' },
-                { id: 'Generate Compliance Documentation', label: 'Docs Generation' }
-              ],
-              timestamp: Date.now()
-            });
-          } catch (e) { /* ignore */ }
-        } else if (onboardingStep === 5) {
-          useOnboardingStore.getState().setGoal({ goal: text });
-          useOnboardingStore.getState().setIsOnboardingComplete(true);
-          addMessage({
-            id: crypto.randomUUID(), role: 'system', content: 'Setup complete! Let me analyze your project now.',
-            timestamp: Date.now()
-          });
-          // Now trigger the actual backend call to analyze
-          triggerBackendAnalysis();
-        }
-      }, 500);
-      return;
-    }
-    // --- End Onboarding Interceptor ---
-
+    // Send message directly to backend without onboarding interception
     triggerBackendCall(text);
   };
 
@@ -136,45 +82,20 @@ export const ChatWidget: React.FC = () => {
       });
       if (!response.ok) throw new Error("API call failed");
       
-      const reader = response.body?.getReader();
-      const decoder = new TextDecoder("utf-8");
-      if (!reader) throw new Error("No reader");
-
+      const data = await response.json();
       let currentText = "";
-      let buffer = "";
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        buffer += decoder.decode(value, { stream: true });
-        
-        let newlineIndex;
-        while ((newlineIndex = buffer.indexOf('\n')) >= 0) {
-          const line = buffer.slice(0, newlineIndex).trim();
-          buffer = buffer.slice(newlineIndex + 1);
-          
-          if (line.startsWith("data: ")) {
-            const dataStr = line.slice(6);
-            if (!dataStr) continue;
-            try {
-              const data = JSON.parse(dataStr);
-              if (data.chunk) {
-                currentText += data.chunk;
-                useChatStore.getState().updateMessage(msgId, { content: currentText });
-              }
-              if (data.metadata) {
-                useChatStore.getState().updateMessage(msgId, {
-                  response: data.metadata,
-                  options: data.metadata.follow_up_questions ? data.metadata.follow_up_questions.map((q: string) => ({ id: crypto.randomUUID(), label: q })) : undefined
-                });
-                if (data.metadata.tokens_used) {
-                  useChatStore.getState().deductTokens(data.metadata.tokens_used);
-                }
-              }
-            } catch(e) {
-              console.error("SSE parse error", e);
-            }
-          }
-        }
+      if (data.executive_summary) currentText += "### Executive Summary\n" + data.executive_summary + "\n\n";
+      if (data.overview) currentText += data.overview + "\n\n";
+      if (data.framework) currentText += "**Framework**: " + data.framework + "\n\n";
+      if (!currentText) currentText = "Processing complete.";
+
+      useChatStore.getState().updateMessage(msgId, { 
+        content: currentText,
+        response: data,
+        options: data.suggested_questions ? data.suggested_questions.map((q: string) => ({ id: crypto.randomUUID(), label: q })) : undefined
+      });
+      if (data.tokens_used) {
+        useChatStore.getState().addTokensUsed(data.tokens_used);
       }
       useChatStore.getState().fetchHistory(userId);
     } catch (e) {
@@ -202,45 +123,20 @@ export const ChatWidget: React.FC = () => {
 
       if (!response.ok) throw new Error("API call failed");
       
-      const reader = response.body?.getReader();
-      const decoder = new TextDecoder("utf-8");
-      if (!reader) throw new Error("No reader");
-
+      const data = await response.json();
       let currentText = "";
-      let buffer = "";
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        buffer += decoder.decode(value, { stream: true });
-        
-        let newlineIndex;
-        while ((newlineIndex = buffer.indexOf('\n')) >= 0) {
-          const line = buffer.slice(0, newlineIndex).trim();
-          buffer = buffer.slice(newlineIndex + 1);
-          
-          if (line.startsWith("data: ")) {
-            const dataStr = line.slice(6);
-            if (!dataStr) continue;
-            try {
-              const data = JSON.parse(dataStr);
-              if (data.chunk) {
-                currentText += data.chunk;
-                useChatStore.getState().updateMessage(msgId, { content: currentText });
-              }
-              if (data.metadata) {
-                useChatStore.getState().updateMessage(msgId, {
-                  response: data.metadata,
-                  options: data.metadata.follow_up_questions ? data.metadata.follow_up_questions.map((q: string) => ({ id: crypto.randomUUID(), label: q })) : undefined
-                });
-                if (data.metadata.tokens_used) {
-                  useChatStore.getState().deductTokens(data.metadata.tokens_used);
-                }
-              }
-            } catch(e) {
-              console.error("SSE parse error", e);
-            }
-          }
-        }
+      if (data.executive_summary) currentText += "### Executive Summary\n" + data.executive_summary + "\n\n";
+      if (data.overview) currentText += data.overview + "\n\n";
+      if (data.framework) currentText += "**Framework**: " + data.framework + "\n\n";
+      if (!currentText) currentText = "Processing complete.";
+
+      useChatStore.getState().updateMessage(msgId, { 
+        content: currentText,
+        response: data,
+        options: data.suggested_questions ? data.suggested_questions.map((q: string) => ({ id: crypto.randomUUID(), label: q })) : undefined
+      });
+      if (data.tokens_used) {
+        useChatStore.getState().addTokensUsed(data.tokens_used);
       }
       useChatStore.getState().fetchHistory(userId);
     } catch (e) {
@@ -250,25 +146,7 @@ export const ChatWidget: React.FC = () => {
     }
   };
 
-  // Start onboarding automatically if empty chat and not complete
-  useEffect(() => {
-    if (isOpen && currentView === 'chat' && messages.length === 0 && !isOnboardingComplete) {
-      setTimeout(() => {
-        addMessage({
-          id: crypto.randomUUID(),
-          role: 'system',
-          content: 'Welcome to Albertsons AI! Let\'s get your project set up. What best describes your role?',
-          options: [
-            { id: 'AI Developer', label: 'AI Developer' },
-            { id: 'ML Engineer', label: 'ML Engineer' },
-            { id: 'AI Architect', label: 'AI Architect' },
-            { id: 'Compliance Manager', label: 'Compliance Manager' },
-          ],
-          timestamp: Date.now()
-        });
-      }, 500);
-    }
-  }, [isOpen, currentView, messages.length, isOnboardingComplete, addMessage]);
+  // Auto-welcome message removed to preserve ChatArea's rich empty state UI
 
   return (
     <>

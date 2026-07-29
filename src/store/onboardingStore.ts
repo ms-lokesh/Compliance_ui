@@ -44,7 +44,7 @@ export const useOnboardingStore = create<OnboardingState>()(
       setDeployment: (deployment) => set({ deployment }),
       setGoal: (goal) => set({ goal }),
       setUserId: (userId) => set({ userId }),
-      reset: () => set(initialState)
+      reset: () => set((state) => ({ ...initialState, userId: state.userId }))
     }),
     {
       name: 'onboarding-storage',

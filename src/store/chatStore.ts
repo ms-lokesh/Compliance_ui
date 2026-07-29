@@ -37,8 +37,8 @@ export interface ChatState {
   fetchHistory: (userId: string) => Promise<void>;
   loadSession: (sessionId: string) => Promise<void>;
   deleteSession: (sessionId: string) => Promise<void>;
-  tokensRemaining: number;
-  deductTokens: (amount: number) => void;
+  tokensUsed: number;
+  addTokensUsed: (amount: number) => void;
 }
 
 export const useChatStore = create<ChatState>()(
@@ -48,8 +48,8 @@ export const useChatStore = create<ChatState>()(
       messages: [],
       history: [],
       isLoading: false,
-      tokensRemaining: 100000,
-      deductTokens: (amount) => set((state) => ({ tokensRemaining: Math.max(0, state.tokensRemaining - amount) })),
+      tokensUsed: 0,
+      addTokensUsed: (amount) => set((state) => ({ tokensUsed: state.tokensUsed + amount })),
       addMessage: (msg) => set((state) => ({ messages: [...state.messages, msg] })),
       updateMessage: (id, updates) => set((state) => ({
         messages: state.messages.map(m => m.id === id ? { ...m, ...updates } : m)

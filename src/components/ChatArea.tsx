@@ -18,7 +18,7 @@ export const ChatArea: React.FC<ChatAreaProps> = ({ messages, onSendMessage, isL
   const [input, setInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
-  const { history, sessionId, tokensRemaining } = useChatStore();
+  const { history, sessionId, tokensUsed } = useChatStore();
   const { complianceFramework } = useOnboardingStore();
   
   const currentSession = history.find(h => h.id === sessionId);
@@ -53,9 +53,9 @@ export const ChatArea: React.FC<ChatAreaProps> = ({ messages, onSendMessage, isL
               </span>
               <span>Albertsons AI</span>
               <span className="mx-2 text-gray-300">•</span>
-              <div className="flex items-center text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded font-medium" title="Tokens remaining today">
+              <div className="flex items-center text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded font-medium" title="Tokens used in this session">
                 <Zap className="h-3 w-3 mr-1" />
-                {Math.max(0, tokensRemaining / 1000).toFixed(1)}k / 100k
+                {(tokensUsed / 1000).toFixed(1)}k tokens used
               </div>
             </div>
           </div>

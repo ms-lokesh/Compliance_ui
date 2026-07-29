@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useChatStore } from '../store/chatStore';
+import { useOnboardingStore } from '../store/onboardingStore';
 import { MessageSquare, Clock, Plus, Zap, Search, ChevronRight, X, Trash2 } from 'lucide-react';
 
 interface HomePageProps {
@@ -74,7 +75,10 @@ export const HomePage: React.FC<HomePageProps> = ({ onNewChat, onClose }) => {
           <div className="mb-5">
             <h3 className="text-xs font-semibold text-gray-400 mb-2 px-1 uppercase tracking-wider">Continue</h3>
             <button
-              onClick={() => loadSession(lastChat.id)}
+              onClick={() => {
+                loadSession(lastChat.id);
+                useOnboardingStore.getState().setIsOnboardingComplete(true);
+              }}
               className="w-full flex items-center text-left p-3 bg-white border border-gray-100 rounded-xl hover:border-blue-200 hover:shadow-sm transition-all group"
             >
               <div className="bg-gray-50 p-2 rounded-lg group-hover:bg-blue-50 transition-colors mr-3 shrink-0">
@@ -106,7 +110,10 @@ export const HomePage: React.FC<HomePageProps> = ({ onNewChat, onClose }) => {
               {recentChats.slice(searchQuery ? 0 : 1).map(chat => (
                 <div key={chat.id} className="relative group">
                   <button
-                    onClick={() => loadSession(chat.id)}
+                    onClick={() => {
+                      loadSession(chat.id);
+                      useOnboardingStore.getState().setIsOnboardingComplete(true);
+                    }}
                     className="w-full flex items-center text-left p-2.5 bg-white border border-gray-100 rounded-xl hover:border-blue-200 hover:shadow-sm transition-all"
                   >
                     <div className="min-w-0 flex-1 pl-1 pr-6">

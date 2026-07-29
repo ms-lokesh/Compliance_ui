@@ -27,7 +27,7 @@ const MainLayout = () => {
     if (path.startsWith('/assessments')) return 'Assessments';
     if (path.startsWith('/connectors')) return 'Connectors';
     if (path.startsWith('/evidence')) return 'Evidence';
-    if (path.startsWith('/risks')) return 'Risks & Findings';
+    if (path.startsWith('/risks')) return 'Risk Management';
     if (path.startsWith('/reports')) return 'Reports';
     if (path.startsWith('/organization')) return 'Organization';
     if (path.startsWith('/users')) return 'Users';
@@ -41,7 +41,7 @@ const MainLayout = () => {
     { icon: CheckSquare, label: 'Assessments', path: '/assessments' },
     { icon: Plug, label: 'Connectors', path: '/connectors' },
     { icon: Database, label: 'Evidence', path: '/evidence' },
-    { icon: AlertTriangle, label: 'Risks & Findings', path: '/risks' },
+    { icon: AlertTriangle, label: 'Risk Management', path: '/risks' },
     { icon: BarChart, label: 'Reports', path: '/reports' },
   ];
 
