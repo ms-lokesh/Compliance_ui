@@ -19,7 +19,7 @@ export const ChatArea: React.FC<ChatAreaProps> = ({ messages, onSendMessage, isL
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
   const { history, sessionId, tokensUsed } = useChatStore();
-  const { complianceFramework } = useOnboardingStore();
+  const { goal } = useOnboardingStore();
   
   const currentSession = history.find(h => h.id === sessionId);
   const sessionTitle = currentSession?.title || "New Chat";
@@ -49,7 +49,7 @@ export const ChatArea: React.FC<ChatAreaProps> = ({ messages, onSendMessage, isL
             <h2 className="text-sm font-semibold text-gray-800 truncate pr-4">{sessionTitle}</h2>
             <div className="flex items-center text-[11px] text-gray-500">
               <span className="bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded mr-2 font-medium">
-                {complianceFramework || "SOC2"}
+                {goal?.goal || "SOC2"}
               </span>
               <span>Albertsons AI</span>
               <span className="mx-2 text-gray-300">•</span>
@@ -130,8 +130,16 @@ export const ChatArea: React.FC<ChatAreaProps> = ({ messages, onSendMessage, isL
                 }`}>
                   {m.role === "assistant" || m.role === "system" ? (
                     <div className="space-y-4">
-                      <div className={`prose prose-sm max-w-none break-words ${m.role === 'user' ? 'prose-invert text-white' : 'prose-blue text-gray-800'}`}>
-                        <ReactMarkdown>{(m.response && m.response.overview) ? m.response.overview : m.content}</ReactMarkdown>
+                      <div className={`prose prose-sm max-w-none break-words prose-blue text-gray-800`}>
+                        {m.role === 'assistant' && !m.content && !m.response ? (
+                          <div className="flex items-center space-x-2 py-1">
+                            <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"></div>
+                            <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                            <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+                          </div>
+                        ) : (
+                          <ReactMarkdown>{(m.response && m.response.overview) ? m.response.overview : m.content}</ReactMarkdown>
+                        )}
                       </div>
                       
                       {/* Render Options if any */}
@@ -255,15 +263,8 @@ export const ChatArea: React.FC<ChatAreaProps> = ({ messages, onSendMessage, isL
                       )}
                     </div>
                   ) : (
-                    <div className={`prose prose-sm max-w-none break-words ${m.role === 'user' ? 'prose-invert text-white' : 'prose-blue text-gray-800'}`}>
-                      {m.role === 'assistant' && !m.content ? (
-                        <div className="flex items-center space-x-2 py-1">
-                          <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"></div>
-                          <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                          <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
-                        </div>
-                      ) : (
-                        <ReactMarkdown>{
+                    <div className={`prose prose-sm max-w-none break-words prose-invert text-white`}>
+                      <ReactMarkdown>{
                         (() => {
                           try {
                             const obj = JSON.parse(m.content);
@@ -278,7 +279,6 @@ export const ChatArea: React.FC<ChatAreaProps> = ({ messages, onSendMessage, isL
                           }
                         })()
                       }</ReactMarkdown>
-                      )}
                     </div>
                   )}
                 </div>

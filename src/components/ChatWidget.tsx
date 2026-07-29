@@ -10,7 +10,7 @@ export const ChatWidget: React.FC = () => {
   // Global State
   const { messages, isLoading, sessionId, addMessage, setLoading, startNewSession, fetchHistory } = useChatStore();
   const { 
-    userId, complianceFramework, companySize, industry,
+    userId, goal, organization,
     isOnboardingComplete, onboardingStep 
   } = useOnboardingStore();
   // Widget Toggle State
@@ -68,7 +68,7 @@ export const ChatWidget: React.FC = () => {
     setLoading(true);
     const msgId = crypto.randomUUID();
     addMessage({ id: msgId, role: "assistant", content: "", timestamp: Date.now() });
-    const { complianceFramework, companySize, industry } = useOnboardingStore.getState();
+    const { goal, organization } = useOnboardingStore.getState();
     try {
       const response = await fetch("http://localhost:8000/api/v1/chat", {
         method: "POST",
@@ -77,7 +77,7 @@ export const ChatWidget: React.FC = () => {
           session_id: sessionId,
           user_id: userId,
           message: "Analyze my project based on the onboarding data.",
-          context: { framework: complianceFramework, company_size: companySize, industry: industry }
+          context: { framework: goal.goal, company_size: "Enterprise", industry: organization.industry }
         }),
       });
       if (!response.ok) throw new Error("API call failed");
@@ -117,7 +117,7 @@ export const ChatWidget: React.FC = () => {
           session_id: sessionId,
           user_id: userId,
           message: text,
-          context: { framework: complianceFramework, company_size: companySize, industry: industry }
+          context: { framework: goal.goal, company_size: "Enterprise", industry: organization.industry }
         }),
       });
 
