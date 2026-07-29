@@ -12,7 +12,8 @@ import {
   BarChart,
   Building,
   Users,
-  Settings
+  Settings,
+  Cpu
 } from 'lucide-react';
 
 const MainLayout = () => {
@@ -29,6 +30,7 @@ const MainLayout = () => {
     if (path.startsWith('/evidence')) return 'Evidence';
     if (path.startsWith('/risks')) return 'Risk Management';
     if (path.startsWith('/reports')) return 'Reports';
+    if (path.startsWith('/management-system')) return 'Management System';
     if (path.startsWith('/organization')) return 'Organization';
     if (path.startsWith('/users')) return 'Users';
     if (path.startsWith('/settings')) return 'Settings';
@@ -43,6 +45,7 @@ const MainLayout = () => {
     { icon: Database, label: 'Evidence', path: '/evidence' },
     { icon: AlertTriangle, label: 'Risk Management', path: '/risks' },
     { icon: BarChart, label: 'Reports', path: '/reports' },
+    { icon: Cpu, label: 'Management System', path: '/management-system' },
   ];
 
   const orgItems = [

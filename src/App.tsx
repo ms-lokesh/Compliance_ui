@@ -9,6 +9,7 @@ import Evidence from './pages/Evidence';
 import Assessments from './pages/Assessments';
 import Risks from './pages/Risks';
 import Reports from './pages/Reports';
+import AIManagementPage from './pages/AIManagementPage';
 import Organization from './pages/Organization';
 import UsersSettings from './pages/UsersSettings';
 import SettingsPage from './pages/SettingsPage';
@@ -30,6 +31,7 @@ function App() {
           <Route path="/evidence" element={<Evidence />} />
           <Route path="/risks" element={<Risks />} />
           <Route path="/reports" element={<Reports />} />
+          <Route path="/management-system" element={<AIManagementPage />} />
           <Route path="/organization" element={<Organization />} />
           <Route path="/users" element={<UsersSettings />} />
           <Route path="/settings" element={<SettingsPage />} />
