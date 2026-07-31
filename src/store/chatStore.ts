@@ -59,7 +59,7 @@ export const useChatStore = create<ChatState>()(
       
       fetchHistory: async (userId: string) => {
         try {
-          const res = await fetch(`http://localhost:8000/chat/history?user_id=${userId}`);
+          const res = await fetch(`http://localhost:8080/chat/history?user_id=${userId}`);
           if (res.ok) {
             const data = await res.json();
             set({ history: data });
@@ -72,7 +72,7 @@ export const useChatStore = create<ChatState>()(
       loadSession: async (sessionId: string) => {
         set({ isLoading: true });
         try {
-          const res = await fetch(`http://localhost:8000/chat/history/${sessionId}`);
+          const res = await fetch(`http://localhost:8080/chat/history/${sessionId}`);
           if (res.ok) {
             const data = await res.json();
             // Transform backend messages to frontend ChatMessage format
@@ -94,7 +94,7 @@ export const useChatStore = create<ChatState>()(
       
       deleteSession: async (sessionId: string) => {
         try {
-          await fetch(`http://localhost:8000/chat/${sessionId}`, { method: 'DELETE' });
+          await fetch(`http://localhost:8080/chat/${sessionId}`, { method: 'DELETE' });
           const { history, sessionId: currentId } = get();
           set({ history: history.filter(h => h.id !== sessionId) });
           if (currentId === sessionId) {
@@ -107,7 +107,7 @@ export const useChatStore = create<ChatState>()(
     }),
     {
       name: 'chat-storage',
-      version: 3,
+      version: 4,
     }
   )
 );

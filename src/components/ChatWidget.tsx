@@ -70,7 +70,7 @@ export const ChatWidget: React.FC = () => {
     addMessage({ id: msgId, role: "assistant", content: "", timestamp: Date.now() });
     const { goal, organization } = useOnboardingStore.getState();
     try {
-      const response = await fetch("http://localhost:8000/api/v1/chat", {
+      const response = await fetch("http://localhost:8080/api/v1/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -110,7 +110,7 @@ export const ChatWidget: React.FC = () => {
     const msgId = crypto.randomUUID();
     addMessage({ id: msgId, role: "assistant", content: "", timestamp: Date.now() });
     try {
-      const response = await fetch("http://localhost:8000/api/v1/chat", {
+      const response = await fetch("http://localhost:8080/api/v1/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

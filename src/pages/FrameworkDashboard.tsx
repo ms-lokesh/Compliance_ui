@@ -24,7 +24,7 @@ const FrameworkDashboard = () => {
 
   useEffect(() => {
     // In a real app we'd map framework ID to an assessment_id. Using 1 as a mock.
-    fetch('http://localhost:8000/api/dashboard/1')
+    fetch('http://localhost:8080/api/dashboard/1')
       .then(res => res.json())
       .then(data => {
         if(data && data.overall_score !== undefined) {
